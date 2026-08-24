@@ -1,0 +1,36 @@
+name: diamond_percent_slider
+description: >-
+  An integer slider on a scale of diamonds, with a thumb that leans the way it
+  is dragged and a bubble showing the value while it moves.
+version: 1.0.0
+homepage: https://github.com/CtrlAltDevelop
+repository: https://github.com/CtrlAltDevelop/diamond_percent_slider
+issue_tracker: https://github.com/CtrlAltDevelop/diamond_percent_slider/issues
+
+topics:
+  - slider
+  - percent
+  - widget
+  - trading
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.0.0
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+screenshots:
+  - description: >-
+      The slider at three settings, with and without the labelled scale.
+    path: screenshots/slider.png
+  - description: >-
+      A leverage picker built from the slider, and the slider disabled.
+    path: screenshots/variants.png
