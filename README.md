@@ -24,7 +24,7 @@ keyboard interaction and accessibility behaviour of Flutter's `Slider`.
 
 ```yaml
 dependencies:
-  diamond_percent_slider: ^1.0.0
+  diamond_percent_slider: ^1.0.1
 ```
 
 The package requires Flutter 3.47 or newer and uses `material_ui` for its
