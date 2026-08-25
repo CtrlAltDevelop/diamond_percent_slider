@@ -7,6 +7,8 @@ keyboard interaction and accessibility behaviour of Flutter's `Slider`.
 
 ![Diamond sliders at three settings](screenshots/slider.png)
 
+![The thumb tilts with left and right swipes](screenshots/tilt-on-swipe.gif)
+
 ## Features
 
 * Integer ranges with guaranteed step snapping.
@@ -14,6 +16,7 @@ keyboard interaction and accessibility behaviour of Flutter's `Slider`.
 * Optional labels and independent value-indicator formatting.
 * Light/dark colour defaults plus `DiamondSliderTheme` for app-wide styling.
 * A disabled state, keyboard controls and screen-reader value semantics.
+* Right-to-left layouts, where the scale and its labels mirror.
 * Public track, thumb, tick-mark and value-indicator shapes for use with a
   plain `Slider`.
 
@@ -44,6 +47,11 @@ DiamondPercentSlider(
 )
 ```
 
+`step`, `nodes` and the per-instance colours cover the rest of the shape of the
+control, including a disabled slider, which dims its labels along with it:
+
+![Coarse steps, a custom tint, and the disabled state](screenshots/variants.png)
+
 No setup is required: colours derive from the ambient `ColorScheme`. To style
 every slider, register a `DiamondSliderTheme` in `ThemeData.extensions`:
 
@@ -59,6 +67,11 @@ ThemeData(
 )
 ```
 
+The defaults follow the theme's brightness, so a dark app needs no extra
+configuration:
+
+![The default colours in a dark theme](screenshots/dark.png)
+
 `labelFormatter`, `indicatorFormatter` and `semanticFormatter` let the scale,
 value bubble and screen-reader announcement use the wording appropriate to
 your domain. See the runnable [example](example) for light, dark, disabled and
@@ -67,7 +80,8 @@ custom-colour variants.
 ## Development
 
 Run `flutter analyze` and `flutter test` from the package root. The example's
-golden tests regenerate the README screenshots with:
+golden tests regenerate the README screenshots — every image here except the
+hand-recorded tilt animation — with:
 
 ```sh
 cd example

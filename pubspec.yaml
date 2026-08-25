@@ -20,7 +20,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  material_ui: ^1.0.0
+  material_ui: ^1.1.0
 
 dev_dependencies:
   flutter_lints: ^6.0.0
@@ -29,8 +29,14 @@ dev_dependencies:
 
 screenshots:
   - description: >-
-      The slider at three settings, with and without the labelled scale.
+      The slider unlabelled, with a percent scale, and as a leverage picker.
     path: screenshots/slider.png
   - description: >-
-      A leverage picker built from the slider, and the slider disabled.
+      The thumb leaning into a drag, with the value bubble above it.
+    path: screenshots/tilt-on-swipe.gif
+  - description: >-
+      Coarse steps, a custom tint, and the slider disabled.
     path: screenshots/variants.png
+  - description: >-
+      The default colours in a dark theme.
+    path: screenshots/dark.png

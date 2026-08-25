@@ -92,7 +92,10 @@ void main() {
     WidgetTester tester,
   ) async {
     tester.view
-      ..physicalSize = const Size(880, 520)
+      // Three labelled sliders need more than the 260 logical pixels that a
+      // 880×520 capture becomes at 2× DPR. Keep the bottom label row inside
+      // the canvas so the generated README image has no overflow warning.
+      ..physicalSize = const Size(880, 600)
       ..devicePixelRatio = 2;
     addTearDown(tester.view.reset);
 

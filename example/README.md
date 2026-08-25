@@ -1,17 +1,29 @@
 # diamond_percent_slider_example
 
-A new Flutter project.
+A runnable demo of [`diamond_percent_slider`](../), showing the slider in the
+configurations the package README describes: the plain percent scale, a
+labelled scale, a leverage picker with `x` labels, coarse steps, a custom tint,
+the disabled state, and the light and dark colour defaults. The app bar
+toggles the theme's brightness and the text direction, so the right-to-left
+layout is one tap away.
 
-## Getting Started
+## Run it
 
-This project is a starting point for a Flutter application.
+```sh
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+The demo depends on the package by path, so edits to `../lib` show up on the
+next hot reload.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Screenshots
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+`test/screenshots_test.dart` renders the images in the package README from
+these same widgets. Regenerate them after changing how the slider draws:
+
+```sh
+flutter test --update-goldens test/screenshots_test.dart
+```
+
+The goldens land in `../screenshots/`. They are compared, not just written, so
+plain `flutter test` fails when the rendering changes unintentionally.
