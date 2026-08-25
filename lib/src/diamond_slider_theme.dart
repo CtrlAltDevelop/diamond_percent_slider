@@ -162,8 +162,7 @@ class DiamondSliderTheme extends ThemeExtension<DiamondSliderTheme> {
     return copyWith(
       activeColor: active,
       inactiveColor: inactiveColor ?? scheme.outlineVariant,
-      disabledColor:
-          disabledColor ?? active.withValues(alpha: disabledOpacity),
+      disabledColor: disabledColor ?? active.withValues(alpha: disabledOpacity),
       thumbColor: thumbColor ?? scheme.surface,
       thumbBorderColor: thumbBorderColor ?? active,
       indicatorColor: indicatorColor ?? scheme.inverseSurface,
@@ -178,8 +177,7 @@ class DiamondSliderTheme extends ThemeExtension<DiamondSliderTheme> {
   /// Always fully resolved, so every colour on the result is non-null.
   static DiamondSliderTheme of(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    return (theme.extension<DiamondSliderTheme>() ??
-            const DiamondSliderTheme())
+    return (theme.extension<DiamondSliderTheme>() ?? const DiamondSliderTheme())
         .resolve(theme.colorScheme);
   }
 
@@ -246,11 +244,7 @@ class DiamondSliderTheme extends ThemeExtension<DiamondSliderTheme> {
       inactiveColor: Color.lerp(inactiveColor, other.inactiveColor, t),
       disabledColor: Color.lerp(disabledColor, other.disabledColor, t),
       thumbColor: Color.lerp(thumbColor, other.thumbColor, t),
-      thumbBorderColor: Color.lerp(
-        thumbBorderColor,
-        other.thumbBorderColor,
-        t,
-      ),
+      thumbBorderColor: Color.lerp(thumbBorderColor, other.thumbBorderColor, t),
       indicatorColor: Color.lerp(indicatorColor, other.indicatorColor, t),
       indicatorTextColor: Color.lerp(
         indicatorTextColor,
@@ -265,8 +259,7 @@ class DiamondSliderTheme extends ThemeExtension<DiamondSliderTheme> {
       thumbSize: lerpDouble(thumbSize, other.thumbSize, t) ?? thumbSize,
       nodeSize: lerpDouble(nodeSize, other.nodeSize, t) ?? nodeSize,
       trackThickness:
-          lerpDouble(trackThickness, other.trackThickness, t) ??
-          trackThickness,
+          lerpDouble(trackThickness, other.trackThickness, t) ?? trackThickness,
       overlayRadius:
           lerpDouble(overlayRadius, other.overlayRadius, t) ?? overlayRadius,
       indicatorRadius:

@@ -28,7 +28,8 @@ dependencies:
 ```
 
 The package requires Flutter 3.47 or newer and uses `material_ui` for its
-Material primitives.
+Material primitives. That covers Android, iOS, macOS, Windows and Linux; web is
+not among them, because `material_ui` reaches for `dart:io`.
 
 ## Usage
 

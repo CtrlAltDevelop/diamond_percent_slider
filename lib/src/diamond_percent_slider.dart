@@ -174,8 +174,7 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
 
   int get _divisions => (widget.max - widget.min) ~/ widget.step;
 
-  DiamondSliderLabelFormatter get _label =>
-      widget.labelFormatter ?? _percent;
+  DiamondSliderLabelFormatter get _label => widget.labelFormatter ?? _percent;
 
   DiamondSliderLabelFormatter get _indicator =>
       widget.indicatorFormatter ?? _label;
@@ -202,8 +201,7 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
     setState(() => _tilt = direction);
   }
 
-  void _handleChangeStart(double raw) =>
-      widget.onChangeStart?.call(_snap(raw));
+  void _handleChangeStart(double raw) => widget.onChangeStart?.call(_snap(raw));
 
   void _handleChangeEnd(double raw) {
     _lean(0);

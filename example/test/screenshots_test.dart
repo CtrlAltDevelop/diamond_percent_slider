@@ -65,11 +65,7 @@ void main() {
     await tester.pumpWidget(
       _canvas(<Widget>[
         DiamondPercentSlider(value: 25, onChanged: (_) {}),
-        DiamondPercentSlider(
-          value: 60,
-          showLabels: true,
-          onChanged: (_) {},
-        ),
+        DiamondPercentSlider(value: 60, showLabels: true, onChanged: (_) {}),
         DiamondPercentSlider(
           value: 20,
           min: 1,
@@ -139,17 +135,10 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      _canvas(
-        <Widget>[
-          DiamondPercentSlider(value: 25, onChanged: (_) {}),
-          DiamondPercentSlider(
-            value: 60,
-            showLabels: true,
-            onChanged: (_) {},
-          ),
-        ],
-        brightness: Brightness.dark,
-      ),
+      _canvas(<Widget>[
+        DiamondPercentSlider(value: 25, onChanged: (_) {}),
+        DiamondPercentSlider(value: 60, showLabels: true, onChanged: (_) {}),
+      ], brightness: Brightness.dark),
     );
     await tester.pumpAndSettle();
 

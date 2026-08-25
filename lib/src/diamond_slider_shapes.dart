@@ -134,11 +134,7 @@ class DiamondSliderTrackShape extends SliderTrackShape
       // Split into at most three runs, so a segment straddling the thumb is
       // part filled and part not.
       line(start, math.min(end, activeStart), inactiveLine);
-      line(
-        math.max(start, activeStart),
-        math.min(end, activeEnd),
-        activeLine,
-      );
+      line(math.max(start, activeStart), math.min(end, activeEnd), activeLine);
       line(math.max(start, activeEnd), end, inactiveLine);
     }
 
@@ -186,8 +182,7 @@ class DiamondSliderThumbShape extends SliderComponentShape {
   final double angle;
 
   @override
-  Size getPreferredSize(bool isEnabled, bool isDiscrete) =>
-      Size.square(size);
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) => Size.square(size);
 
   @override
   void paint(
@@ -236,10 +231,8 @@ class DiamondSliderThumbShape extends SliderComponentShape {
 /// divisions to want one mark each.
 class DiamondSliderTickMarkShape extends SliderTickMarkShape {
   /// Creates a diamond tick mark.
-  const DiamondSliderTickMarkShape({
-    required this.color,
-    this.size = 8,
-  }) : assert(size > 0);
+  const DiamondSliderTickMarkShape({required this.color, this.size = 8})
+    : assert(size > 0);
 
   /// The diamond's width and height.
   final double size;

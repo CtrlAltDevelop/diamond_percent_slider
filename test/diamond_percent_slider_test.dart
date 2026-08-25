@@ -9,9 +9,7 @@ Widget host(
   DiamondSliderTheme? extension,
   TextDirection direction = TextDirection.ltr,
 }) => MaterialApp(
-  theme: ThemeData(
-    extensions: <ThemeExtension<dynamic>>[?extension],
-  ),
+  theme: ThemeData(extensions: <ThemeExtension<dynamic>>[?extension]),
   home: Directionality(
     textDirection: direction,
     child: Scaffold(
@@ -85,11 +83,7 @@ void main() {
       final List<int> reported = <int>[];
       await tester.pumpWidget(
         host(
-          DiamondPercentSlider(
-            value: 50,
-            step: 25,
-            onChanged: reported.add,
-          ),
+          DiamondPercentSlider(value: 50, step: 25, onChanged: reported.add),
         ),
       );
 
@@ -154,11 +148,7 @@ void main() {
     testWidgets('labels the value at each node', (tester) async {
       await tester.pumpWidget(
         host(
-          DiamondPercentSlider(
-            value: 50,
-            showLabels: true,
-            onChanged: (_) {},
-          ),
+          DiamondPercentSlider(value: 50, showLabels: true, onChanged: (_) {}),
         ),
       );
 
@@ -214,22 +204,12 @@ void main() {
     ) async {
       await tester.pumpWidget(
         host(
-          DiamondPercentSlider(
-            value: 0,
-            showLabels: true,
-            onChanged: (_) {},
-          ),
+          DiamondPercentSlider(value: 0, showLabels: true, onChanged: (_) {}),
         ),
       );
 
       final List<double> centres = <double>[
-        for (final String label in <String>[
-          '0%',
-          '25%',
-          '50%',
-          '75%',
-          '100%',
-        ])
+        for (final String label in <String>['0%', '25%', '50%', '75%', '100%'])
           tester.getCenter(find.text(label)).dx,
       ];
 
@@ -246,11 +226,7 @@ void main() {
     testWidgets('the middle label sits on the slider centre', (tester) async {
       await tester.pumpWidget(
         host(
-          DiamondPercentSlider(
-            value: 0,
-            showLabels: true,
-            onChanged: (_) {},
-          ),
+          DiamondPercentSlider(value: 0, showLabels: true, onChanged: (_) {}),
         ),
       );
 
@@ -263,11 +239,7 @@ void main() {
     testWidgets('under RTL the low values sit on the right', (tester) async {
       await tester.pumpWidget(
         host(
-          DiamondPercentSlider(
-            value: 0,
-            showLabels: true,
-            onChanged: (_) {},
-          ),
+          DiamondPercentSlider(value: 0, showLabels: true, onChanged: (_) {}),
           direction: TextDirection.rtl,
         ),
       );
@@ -281,11 +253,7 @@ void main() {
     testWidgets('the labels are hidden from screen readers', (tester) async {
       await tester.pumpWidget(
         host(
-          DiamondPercentSlider(
-            value: 50,
-            showLabels: true,
-            onChanged: (_) {},
-          ),
+          DiamondPercentSlider(value: 50, showLabels: true, onChanged: (_) {}),
         ),
       );
 
@@ -335,10 +303,7 @@ void main() {
       );
 
       expect(find.text('0'), findsOneWidget, reason: 'the scale is unchanged');
-      expect(
-        tester.widget<Slider>(find.byType(Slider)).label,
-        '12 of 100',
-      );
+      expect(tester.widget<Slider>(find.byType(Slider)).label, '12 of 100');
     });
 
     testWidgets('semanticFormatter overrides only the announcement', (
@@ -603,9 +568,9 @@ void main() {
     test('resolve leaves a colour the host set alone', () {
       const Color mine = Color(0xFF010203);
       expect(
-        const DiamondSliderTheme(
-          activeColor: mine,
-        ).resolve(ThemeData().colorScheme).activeColor,
+        const DiamondSliderTheme(activeColor: mine)
+            .resolve(ThemeData().colorScheme)
+            .activeColor,
         mine,
       );
     });
@@ -695,11 +660,7 @@ void main() {
   group('what it refuses to build', () {
     test('a range with no width', () {
       expect(
-        () => DiamondPercentSlider(
-          value: 0,
-          max: 0,
-          onChanged: (_) {},
-        ),
+        () => DiamondPercentSlider(value: 0, max: 0, onChanged: (_) {}),
         throwsAssertionError,
       );
     });
