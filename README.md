@@ -82,7 +82,8 @@ custom-colour variants.
 
 ## Development
 
-Run `flutter analyze` and `flutter test` from the package root.
+Run `flutter analyze` and `flutter test` from the package root; CI runs both,
+plus `dart format`, `dart pub publish --dry-run` and `pana`, on every push.
 
 Golden tests under `test/goldens` cover what the slider paints. Their baselines
 are macOS-rendered, so CI skips them with `--exclude-tags golden` and they stay
