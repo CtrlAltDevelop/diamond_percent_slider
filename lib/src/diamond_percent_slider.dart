@@ -287,6 +287,59 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
         )
         .merge(theme.labelStyle);
 
+    // The thumb leans the way the finger goes, and under RTL the finger goes
+    // the opposite way from the value: dragging right lowers it.
+    final double leanSign = Directionality.of(context) == TextDirection.rtl
+        ? -1
+        : 1;
+
+    // Only the thumb carries the angle, so the rest of the theme — and the
+    // Slider itself — is built once per build rather than once per tilt frame.
+    // Each frame then allocates one shape and one copyWith, and the Slider
+    // rebuilds because it depends on the SliderTheme above it.
+    final SliderThemeData sliderTheme = SliderThemeData(
+      // Non-transparent on purpose: BaseSliderTrackShape collapses the track
+      // rect to zero height when both are transparent, and the nodes are
+      // measured against that rect.
+      activeTrackColor: active,
+      inactiveTrackColor: inactive,
+      trackHeight: theme.nodeSize > theme.trackThickness
+          ? theme.nodeSize
+          : theme.trackThickness,
+      overlayColor: theme.overlayColor,
+      trackShape: DiamondSliderTrackShape(
+        nodes: widget.nodes,
+        activeColor: active,
+        inactiveColor: inactive,
+        nodeSize: theme.nodeSize,
+        thickness: theme.trackThickness,
+      ),
+      overlayShape: RoundSliderOverlayShape(overlayRadius: theme.overlayRadius),
+      // The scale already shows every node it means to; a mark per division on
+      // top would be noise, and at 100 divisions a smear.
+      tickMarkShape: SliderTickMarkShape.noTickMark,
+      valueIndicatorShape: DiamondSliderValueIndicatorShape(
+        color: theme.indicatorColor!,
+        radius: theme.indicatorRadius,
+        gap: theme.indicatorGap,
+        padding: theme.indicatorPadding,
+        minWidth: theme.indicatorMinWidth,
+      ),
+      valueIndicatorTextStyle: (text.labelSmall ?? const TextStyle())
+          .copyWith(
+            color: theme.indicatorTextColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          )
+          .merge(theme.indicatorTextStyle),
+    );
+
+    final Color thumbColor = _interactive
+        ? theme.thumbColor!
+        : Color.alphaBlend(
+            theme.disabledColor!.withValues(alpha: 0.12),
+            theme.thumbColor!,
+          );
     // Set explicitly if either the slider or the extension says so, and
     // otherwise the active colour — including a per-instance activeColor, so
     // tinting one slider tints its outline too. Dimmed with everything else
@@ -298,85 +351,39 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
               theme.activeColor!
         : theme.disabledColor!;
 
-    // The thumb leans the way the finger goes, and under RTL the finger goes
-    // the opposite way from the value: dragging right lowers it.
-    final double leanSign = Directionality.of(context) == TextDirection.rtl
-        ? -1
-        : 1;
-
     final Widget slider = TweenAnimationBuilder<double>(
       tween: Tween<double>(end: _tilt * leanSign * theme.tiltAngle),
       duration: theme.tiltDuration,
       curve: theme.tiltCurve,
+      child: Slider(
+        value: _clampedValue.toDouble(),
+        min: widget.min.toDouble(),
+        max: widget.max.toDouble(),
+        divisions: _divisions,
+        label: _indicator(_clampedValue),
+        focusNode: widget.focusNode,
+        autofocus: widget.autofocus,
+        mouseCursor: widget.mouseCursor,
+        allowedInteraction: widget.allowedInteraction,
+        padding: widget.padding,
+        semanticFormatterCallback: (double raw) =>
+            (widget.semanticFormatter ?? _indicator)(_snap(raw)),
+        onChanged: _interactive ? _handleChanged : null,
+        onChangeStart: _interactive ? _handleChangeStart : null,
+        onChangeEnd: _interactive ? _handleChangeEnd : null,
+      ),
       builder: (BuildContext context, double angle, Widget? child) =>
           SliderTheme(
-            data: SliderThemeData(
-              // Non-transparent on purpose: BaseSliderTrackShape collapses the
-              // track rect to zero height when both are transparent, and the
-              // nodes are measured against that rect.
-              activeTrackColor: active,
-              inactiveTrackColor: inactive,
-              trackHeight: theme.nodeSize > theme.trackThickness
-                  ? theme.nodeSize
-                  : theme.trackThickness,
-              overlayColor: theme.overlayColor,
-              trackShape: DiamondSliderTrackShape(
-                nodes: widget.nodes,
-                activeColor: active,
-                inactiveColor: inactive,
-                nodeSize: theme.nodeSize,
-                thickness: theme.trackThickness,
-              ),
+            data: sliderTheme.copyWith(
               thumbShape: DiamondSliderThumbShape(
                 size: theme.thumbSize,
-                color: _interactive
-                    ? theme.thumbColor!
-                    : Color.alphaBlend(
-                        theme.disabledColor!.withValues(alpha: 0.12),
-                        theme.thumbColor!,
-                      ),
+                color: thumbColor,
                 borderColor: thumbBorderColor,
                 borderWidth: theme.thumbBorderWidth,
                 angle: angle,
               ),
-              overlayShape: RoundSliderOverlayShape(
-                overlayRadius: theme.overlayRadius,
-              ),
-              // The scale already shows every node it means to; a mark per
-              // division on top would be noise, and at 100 divisions a smear.
-              tickMarkShape: SliderTickMarkShape.noTickMark,
-              valueIndicatorShape: DiamondSliderValueIndicatorShape(
-                color: theme.indicatorColor!,
-                radius: theme.indicatorRadius,
-                gap: theme.indicatorGap,
-                padding: theme.indicatorPadding,
-                minWidth: theme.indicatorMinWidth,
-              ),
-              valueIndicatorTextStyle: (text.labelSmall ?? const TextStyle())
-                  .copyWith(
-                    color: theme.indicatorTextColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  )
-                  .merge(theme.indicatorTextStyle),
             ),
-            child: Slider(
-              value: _clampedValue.toDouble(),
-              min: widget.min.toDouble(),
-              max: widget.max.toDouble(),
-              divisions: _divisions,
-              label: _indicator(_clampedValue),
-              focusNode: widget.focusNode,
-              autofocus: widget.autofocus,
-              mouseCursor: widget.mouseCursor,
-              allowedInteraction: widget.allowedInteraction,
-              padding: widget.padding,
-              semanticFormatterCallback: (double raw) =>
-                  (widget.semanticFormatter ?? _indicator)(_snap(raw)),
-              onChanged: _interactive ? _handleChanged : null,
-              onChangeStart: _interactive ? _handleChangeStart : null,
-              onChangeEnd: _interactive ? _handleChangeEnd : null,
-            ),
+            child: child!,
           ),
     );
 

@@ -453,6 +453,41 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets(
+      'a tilt frame repaints the thumb without rebuilding the Slider',
+      (tester) async {
+        await tester.pumpWidget(
+          host(DiamondPercentSlider(value: 50, onChanged: (_) {})),
+        );
+
+        final TestGesture gesture = await tester.startGesture(
+          tester.getCenter(find.byType(Slider)),
+        );
+        await gesture.moveBy(const Offset(40, 0));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 40));
+        final Slider first = tester.widget<Slider>(find.byType(Slider));
+        final double firstAngle = thumbOf(tester).angle;
+
+        await tester.pump(const Duration(milliseconds: 40));
+        final Slider second = tester.widget<Slider>(find.byType(Slider));
+
+        expect(
+          thumbOf(tester).angle,
+          isNot(firstAngle),
+          reason: 'the tilt was still animating between those frames',
+        );
+        expect(
+          identical(first, second),
+          isTrue,
+          reason: 'the Slider is hoisted out of the tilt animation',
+        );
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+
     testWidgets('tiltAngle 0 holds the thumb level throughout', (tester) async {
       int value = 50;
       await tester.pumpWidget(
@@ -744,6 +779,7 @@ void main() {
       );
     });
   });
+
   group('theming', () {
     testWidgets('with nothing registered the colours come from the scheme', (
       tester,
