@@ -66,6 +66,7 @@ class DiamondPercentSlider extends StatefulWidget {
     this.activeColor,
     this.inactiveColor,
     this.thumbColor,
+    this.thumbBorderColor,
     this.indicatorColor,
     this.labelStyle,
     super.key,
@@ -137,6 +138,9 @@ class DiamondPercentSlider extends StatefulWidget {
   /// Overrides the theme's thumb colour for this slider alone.
   final Color? thumbColor;
 
+  /// Overrides the theme's thumb outline colour for this slider alone.
+  final Color? thumbBorderColor;
+
   /// Overrides the theme's bubble colour for this slider alone.
   final Color? indicatorColor;
 
@@ -165,7 +169,9 @@ class DiamondPercentSlider extends StatefulWidget {
 }
 
 class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
-  /// -1, 0 or 1: which way the thumb is leaning, before the angle is applied.
+  /// -1, 0 or 1: which way the *value* is moving, before the angle and the
+  /// text direction are applied. Held as a value direction rather than a
+  /// screen direction so it survives a `Directionality` change mid-drag.
   double _tilt = 0;
 
   bool get _interactive => widget.enabled && widget.onChanged != null;
@@ -210,10 +216,17 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
 
   @override
   Widget build(BuildContext context) {
+    // The extension as the host wrote it, nulls and all. `of` resolves those
+    // nulls, which loses the one distinction the thumb outline needs: whether
+    // the host asked for an outline colour or left it to follow the active one.
+    final DiamondSliderTheme configured =
+        Theme.of(context).extension<DiamondSliderTheme>() ??
+        const DiamondSliderTheme();
     final DiamondSliderTheme theme = DiamondSliderTheme.of(context).copyWith(
       activeColor: widget.activeColor,
       inactiveColor: widget.inactiveColor,
       thumbColor: widget.thumbColor,
+      thumbBorderColor: widget.thumbBorderColor,
       indicatorColor: widget.indicatorColor,
       labelStyle: widget.labelStyle,
     );
@@ -237,8 +250,25 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
         )
         .merge(theme.labelStyle);
 
+    // Set explicitly if either the slider or the extension says so, and
+    // otherwise the active colour — including a per-instance activeColor, so
+    // tinting one slider tints its outline too. Dimmed with everything else
+    // when disabled, so a host that set an outline colour does not keep a
+    // bright edge on a greyed-out thumb.
+    final Color thumbBorderColor = _interactive
+        ? widget.thumbBorderColor ??
+              configured.thumbBorderColor ??
+              theme.activeColor!
+        : theme.disabledColor!;
+
+    // The thumb leans the way the finger goes, and under RTL the finger goes
+    // the opposite way from the value: dragging right lowers it.
+    final double leanSign = Directionality.of(context) == TextDirection.rtl
+        ? -1
+        : 1;
+
     final Widget slider = TweenAnimationBuilder<double>(
-      tween: Tween<double>(end: _tilt * theme.tiltAngle),
+      tween: Tween<double>(end: _tilt * leanSign * theme.tiltAngle),
       duration: theme.tiltDuration,
       curve: theme.tiltCurve,
       builder: (BuildContext context, double angle, Widget? child) =>
@@ -268,7 +298,7 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
                         theme.disabledColor!.withValues(alpha: 0.12),
                         theme.thumbColor!,
                       ),
-                borderColor: active,
+                borderColor: thumbBorderColor,
                 borderWidth: theme.thumbBorderWidth,
                 angle: angle,
               ),

@@ -394,6 +394,39 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('under RTL it still leans the way the finger goes', (
+      tester,
+    ) async {
+      int value = 50;
+      await tester.pumpWidget(
+        host(
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) =>
+                DiamondPercentSlider(
+                  value: value,
+                  onChanged: (int next) => setState(() => value = next),
+                ),
+          ),
+          direction: TextDirection.rtl,
+        ),
+      );
+
+      final TestGesture gesture = await tester.startGesture(
+        tester.getCenter(find.byType(Slider)),
+      );
+      // Rightwards under RTL lowers the value, but the lean follows the
+      // finger, so it matches the LTR rightward drag rather than opposing it.
+      await gesture.moveBy(const Offset(60, 0));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(value, lessThan(50));
+      expect(thumbOf(tester).angle, greaterThan(0));
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('tiltAngle 0 holds the thumb level throughout', (tester) async {
       int value = 50;
       await tester.pumpWidget(
@@ -520,6 +553,94 @@ void main() {
       );
 
       expect(trackOf(tester).activeColor, instance);
+    });
+
+    testWidgets('the extension thumb border colour reaches the thumb', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(value: 50, onChanged: (_) {}),
+          extension: const DiamondSliderTheme(
+            thumbBorderColor: Color(0xFFAB1234),
+          ),
+        ),
+      );
+
+      expect(thumbOf(tester).borderColor, const Color(0xFFAB1234));
+    });
+
+    testWidgets('a per-instance thumb border colour beats the extension', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 50,
+            onChanged: (_) {},
+            thumbBorderColor: const Color(0xFF00FF00),
+          ),
+          extension: const DiamondSliderTheme(
+            thumbBorderColor: Color(0xFFAB1234),
+          ),
+        ),
+      );
+
+      expect(thumbOf(tester).borderColor, const Color(0xFF00FF00));
+    });
+
+    testWidgets(
+      'with no outline colour set the outline follows the active one',
+      (tester) async {
+        const Color tint = Color(0xFF16A34A);
+        await tester.pumpWidget(
+          host(
+            DiamondPercentSlider(
+              value: 50,
+              activeColor: tint,
+              onChanged: (_) {},
+            ),
+            // The extension names an active colour but no outline colour, so the
+            // per-instance tint has to reach the outline as well as the track.
+            extension: const DiamondSliderTheme(activeColor: Color(0xFF111111)),
+          ),
+        );
+
+        expect(trackOf(tester).activeColor, tint);
+        expect(thumbOf(tester).borderColor, tint);
+      },
+    );
+
+    testWidgets('an extension outline colour survives a per-instance tint', (
+      tester,
+    ) async {
+      const Color border = Color(0xFFAB1234);
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 50,
+            activeColor: const Color(0xFF16A34A),
+            onChanged: (_) {},
+          ),
+          extension: const DiamondSliderTheme(thumbBorderColor: border),
+        ),
+      );
+
+      expect(thumbOf(tester).borderColor, border);
+    });
+
+    testWidgets('a disabled thumb dims its outline rather than keeping it', (
+      tester,
+    ) async {
+      const Color border = Color(0xFFAB1234);
+      await tester.pumpWidget(
+        host(
+          const DiamondPercentSlider(value: 50, onChanged: null),
+          extension: const DiamondSliderTheme(thumbBorderColor: border),
+        ),
+      );
+
+      expect(thumbOf(tester).borderColor, isNot(border));
     });
 
     testWidgets('the track rect keeps its height, so the nodes have room', (
