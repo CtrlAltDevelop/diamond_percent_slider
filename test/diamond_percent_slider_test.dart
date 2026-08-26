@@ -1,5 +1,6 @@
 import 'package:diamond_percent_slider/diamond_percent_slider.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -17,6 +18,27 @@ Widget host(
     ),
   ),
 );
+
+/// The haptic ticks the slider asked the platform for, in order.
+List<String> recordHaptics(WidgetTester tester) {
+  final List<String> calls = <String>[];
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    SystemChannels.platform,
+    (MethodCall call) async {
+      if (call.method == 'HapticFeedback.vibrate') {
+        calls.add(call.arguments as String? ?? 'default');
+      }
+      return null;
+    },
+  );
+  addTearDown(
+    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      null,
+    ),
+  );
+  return calls;
+}
 
 /// The `SliderThemeData` the widget built, which is where the shapes live.
 SliderThemeData themeOf(WidgetTester tester) =>
@@ -500,6 +522,187 @@ void main() {
 
       expect(disabled, isNot(enabled));
       expect(disabled.a, lessThan(enabled.a));
+    });
+  });
+
+  group('haptics', () {
+    testWidgets('ticks once per step change', (tester) async {
+      final List<String> haptics = recordHaptics(tester);
+      int value = 0;
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: value,
+            step: 25,
+            onChanged: (int v) => value = v,
+          ),
+        ),
+      );
+
+      final Offset centre = tester.getCenter(find.byType(Slider));
+      final TestGesture gesture = await tester.startGesture(centre);
+      await gesture.moveBy(const Offset(4, 0));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(value, 50, reason: 'the tap alone moved it to the centre');
+      expect(haptics, <String>['HapticFeedbackType.selectionClick']);
+    });
+
+    testWidgets('says nothing when the value does not change', (tester) async {
+      final List<String> haptics = recordHaptics(tester);
+      await tester.pumpWidget(
+        host(DiamondPercentSlider(value: 50, step: 50, onChanged: (_) {})),
+      );
+
+      final TestGesture gesture = await tester.startGesture(
+        tester.getCenter(find.byType(Slider)),
+      );
+      await gesture.moveBy(const Offset(2, 0));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(haptics, isEmpty);
+    });
+
+    testWidgets('enableFeedback: false stays silent through a drag', (
+      tester,
+    ) async {
+      final List<String> haptics = recordHaptics(tester);
+      final List<int> reported = <int>[];
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 0,
+            enableFeedback: false,
+            onChanged: reported.add,
+          ),
+        ),
+      );
+
+      await tester.dragFrom(
+        tester.getCenter(find.byType(Slider)),
+        const Offset(60, 0),
+      );
+      await tester.pumpAndSettle();
+
+      expect(reported, isNotEmpty, reason: 'the drag did move the value');
+      expect(haptics, isEmpty);
+    });
+  });
+
+  group('pass-throughs', () {
+    testWidgets('mouseCursor reaches the Slider', (tester) async {
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 50,
+            mouseCursor: SystemMouseCursors.grab,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+
+      expect(
+        tester.widget<Slider>(find.byType(Slider)).mouseCursor,
+        SystemMouseCursors.grab,
+      );
+    });
+
+    testWidgets('allowedInteraction reaches the Slider', (tester) async {
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 50,
+            allowedInteraction: SliderInteraction.slideOnly,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+
+      expect(
+        tester.widget<Slider>(find.byType(Slider)).allowedInteraction,
+        SliderInteraction.slideOnly,
+      );
+    });
+
+    testWidgets('slideOnly ignores a tap away from the thumb', (tester) async {
+      final List<int> reported = <int>[];
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 0,
+            allowedInteraction: SliderInteraction.slideOnly,
+            onChanged: reported.add,
+          ),
+        ),
+      );
+
+      await tester.tapAt(tester.getCenter(find.byType(Slider)));
+      await tester.pumpAndSettle();
+
+      expect(reported, isEmpty);
+    });
+
+    testWidgets('padding reaches the Slider and moves the labels with it', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(value: 0, showLabels: true, onChanged: (_) {}),
+        ),
+      );
+      final double bare = tester.getCenter(find.text('0%')).dx;
+
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 0,
+            showLabels: true,
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            onChanged: (_) {},
+          ),
+        ),
+      );
+
+      expect(
+        tester.widget<Slider>(find.byType(Slider)).padding,
+        const EdgeInsets.symmetric(horizontal: 40),
+      );
+      expect(
+        tester.getCenter(find.text('0%')).dx,
+        moreOrLessEquals(bare + 40, epsilon: 0.5),
+        reason: 'the first label follows the track it labels',
+      );
+    });
+
+    testWidgets('directional padding is mirrored under RTL', (tester) async {
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 0,
+            showLabels: true,
+            padding: const EdgeInsetsDirectional.only(start: 40),
+            onChanged: (_) {},
+          ),
+          direction: TextDirection.rtl,
+        ),
+      );
+      final double start = tester.getCenter(find.text('0%')).dx;
+      final double end = tester.getCenter(find.text('100%')).dx;
+
+      expect(
+        start,
+        greaterThan(end),
+        reason: 'under RTL the scale starts on the right',
+      );
+      expect(
+        start,
+        lessThan(tester.getCenter(find.byType(Slider)).dx + 200 - 40),
+        reason: 'the start padding took 40 off the right-hand edge',
+      );
     });
   });
 

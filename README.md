@@ -16,7 +16,9 @@ keyboard interaction and accessibility behaviour of Flutter's `Slider`.
 * Optional labels and independent value-indicator formatting.
 * Light/dark colour defaults plus `DiamondSliderTheme` for app-wide styling.
 * A disabled state, keyboard controls and screen-reader value semantics.
-* Right-to-left layouts, where the scale and its labels mirror.
+* Right-to-left layouts, where the scale and its labels mirror, and the thumb
+  still leans the way the finger moves.
+* A haptic tick on each step change, off with `enableFeedback: false`.
 * Public track, thumb, tick-mark and value-indicator shapes for use with a
   plain `Slider`.
 

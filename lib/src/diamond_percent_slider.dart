@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:material_ui/material_ui.dart';
 
 import 'diamond_slider_shapes.dart';
@@ -23,8 +24,10 @@ typedef DiamondSliderLabelFormatter = String Function(int value);
 /// label 1, 6, 11, 15 and 20.
 ///
 /// Values are integers, stepped by [step]. Everything else — keyboard support,
-/// the drag gesture, semantics — is the framework's [Slider] underneath, so it
-/// behaves like one.
+/// the drag gesture, semantics, [mouseCursor], [allowedInteraction],
+/// [padding] — is the framework's [Slider] underneath, so it behaves like one.
+///
+/// Each step change plays a haptic tick, which [enableFeedback] turns off.
 ///
 /// ```dart
 /// // Leverage, labelled, in steps of five.
@@ -55,6 +58,7 @@ class DiamondPercentSlider extends StatefulWidget {
     this.step = 1,
     this.nodes = 5,
     this.enabled = true,
+    this.enableFeedback = true,
     this.showLabels = false,
     this.labelFormatter,
     this.indicatorFormatter,
@@ -63,6 +67,9 @@ class DiamondPercentSlider extends StatefulWidget {
     this.onChangeEnd,
     this.focusNode,
     this.autofocus = false,
+    this.mouseCursor,
+    this.allowedInteraction,
+    this.padding,
     this.activeColor,
     this.inactiveColor,
     this.thumbColor,
@@ -102,6 +109,13 @@ class DiamondPercentSlider extends StatefulWidget {
   /// Whether the slider responds to input. A null [onChanged] also disables it.
   final bool enabled;
 
+  /// Whether a haptic tick is played each time the value changes.
+  ///
+  /// One tick per [step], so a 0–100 slider stepped by 1 ticks a hundred times
+  /// across a full drag. Raise [step] or turn this off for a range that fine.
+  /// Silent on platforms without a haptics engine.
+  final bool enableFeedback;
+
   /// Whether each node is labelled with the value at that point.
   final bool showLabels;
 
@@ -128,6 +142,19 @@ class DiamondPercentSlider extends StatefulWidget {
 
   /// Whether to take focus on first build.
   final bool autofocus;
+
+  /// The cursor shown over the slider, as on [Slider].
+  final MouseCursor? mouseCursor;
+
+  /// Which gestures move the thumb, as on [Slider]. Defaults to
+  /// [SliderInteraction.tapAndSlide].
+  final SliderInteraction? allowedInteraction;
+
+  /// The padding around the slider, as on [Slider].
+  ///
+  /// The scale labels are inset to match, so they keep lining up with their
+  /// nodes. Vertical padding applies to the track alone.
+  final EdgeInsetsGeometry? padding;
 
   /// Overrides the theme's active colour for this slider alone.
   final Color? activeColor;
@@ -199,6 +226,7 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
     final int current = _clampedValue;
     if (next == current) return;
     _lean(next > current ? 1 : -1);
+    if (widget.enableFeedback) HapticFeedback.selectionClick();
     widget.onChanged?.call(next);
   }
 
@@ -331,6 +359,9 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
               label: _indicator(_clampedValue),
               focusNode: widget.focusNode,
               autofocus: widget.autofocus,
+              mouseCursor: widget.mouseCursor,
+              allowedInteraction: widget.allowedInteraction,
+              padding: widget.padding,
               semanticFormatterCallback: (double raw) =>
                   (widget.semanticFormatter ?? _indicator)(_snap(raw)),
               onChanged: _interactive ? _handleChanged : null,
@@ -341,6 +372,21 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
     );
 
     if (!widget.showLabels) return RepaintBoundary(child: slider);
+
+    final double trackInset =
+        (theme.thumbSize > theme.overlayRadius * 2
+            ? theme.thumbSize
+            : theme.overlayRadius * 2) /
+        2;
+    // Resolved to start/end rather than left/right: under RTL the slider's
+    // left padding is at the end of the scale, and the labels are positioned
+    // directionally.
+    final EdgeInsetsDirectional? padding = widget.padding == null
+        ? null
+        : _asDirectional(
+            widget.padding!.resolve(Directionality.of(context)),
+            Directionality.of(context),
+          );
 
     return RepaintBoundary(
       child: Column(
@@ -356,19 +402,34 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
             style: labelStyle,
             // The track is inset from the slider's edges by half the wider of
             // the thumb and the overlay, which is where BaseSliderTrackShape
-            // puts it. Matching that inset is what lines a label up with its
-            // node.
-            inset:
-                (theme.thumbSize > theme.overlayRadius * 2
-                    ? theme.thumbSize
-                    : theme.overlayRadius * 2) /
-                2,
+            // puts it, plus whatever padding the slider was given. Matching
+            // that inset is what lines a label up with its node.
+            startInset: trackInset + (padding?.start ?? 0),
+            endInset: trackInset + (padding?.end ?? 0),
           ),
         ],
       ),
     );
   }
 }
+
+/// [insets] as start/end, for the given text direction.
+EdgeInsetsDirectional _asDirectional(
+  EdgeInsets insets,
+  TextDirection direction,
+) => direction == TextDirection.ltr
+    ? EdgeInsetsDirectional.fromSTEB(
+        insets.left,
+        insets.top,
+        insets.right,
+        insets.bottom,
+      )
+    : EdgeInsetsDirectional.fromSTEB(
+        insets.right,
+        insets.top,
+        insets.left,
+        insets.bottom,
+      );
 
 /// The values of the scale's nodes, laid out under their diamonds.
 class _ScaleLabels extends StatelessWidget {
@@ -378,7 +439,8 @@ class _ScaleLabels extends StatelessWidget {
     required this.max,
     required this.formatter,
     required this.style,
-    required this.inset,
+    required this.startInset,
+    required this.endInset,
   });
 
   final int nodes;
@@ -386,7 +448,8 @@ class _ScaleLabels extends StatelessWidget {
   final int max;
   final DiamondSliderLabelFormatter formatter;
   final TextStyle style;
-  final double inset;
+  final double startInset;
+  final double endInset;
 
   @override
   Widget build(BuildContext context) {
@@ -416,7 +479,7 @@ class _ScaleLabels extends StatelessWidget {
     // reading the scale out as well would only be in the way.
     return ExcludeSemantics(
       child: Padding(
-        padding: EdgeInsetsDirectional.only(start: inset, end: inset),
+        padding: EdgeInsetsDirectional.only(start: startInset, end: endInset),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             final double width = constraints.maxWidth;
