@@ -9,12 +9,16 @@ Widget host(
   Widget slider, {
   DiamondSliderTheme? extension,
   TextDirection direction = TextDirection.ltr,
+  double textScale = 1,
 }) => MaterialApp(
   theme: ThemeData(extensions: <ThemeExtension<dynamic>>[?extension]),
-  home: Directionality(
-    textDirection: direction,
-    child: Scaffold(
-      body: Center(child: SizedBox(width: 400, child: slider)),
+  home: MediaQuery(
+    data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
+    child: Directionality(
+      textDirection: direction,
+      child: Scaffold(
+        body: Center(child: SizedBox(width: 400, child: slider)),
+      ),
     ),
   ),
 );
@@ -706,6 +710,40 @@ void main() {
     });
   });
 
+  group('the labels row', () {
+    /// The stack the scale labels are positioned in.
+    final Finder labelRow = find.ancestor(
+      of: find.text('0%'),
+      matching: find.byType(Stack),
+    );
+
+    testWidgets('is measured, so it grows with the text scale', (tester) async {
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(value: 50, showLabels: true, onChanged: (_) {}),
+        ),
+      );
+      final double bare = tester.getSize(find.text('0%')).height;
+      final double bareRow = tester.getSize(labelRow).height;
+
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(value: 50, showLabels: true, onChanged: (_) {}),
+          textScale: 2,
+        ),
+      );
+      final double scaled = tester.getSize(find.text('0%')).height;
+      final double scaledRow = tester.getSize(labelRow).height;
+
+      expect(scaled, greaterThan(bare), reason: 'the text itself grew');
+      expect(bareRow, moreOrLessEquals(bare, epsilon: 0.5));
+      expect(
+        scaledRow,
+        moreOrLessEquals(scaled, epsilon: 0.5),
+        reason: 'the row is as tall as its tallest label, not a fixed guess',
+      );
+    });
+  });
   group('theming', () {
     testWidgets('with nothing registered the colours come from the scheme', (
       tester,

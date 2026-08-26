@@ -466,14 +466,20 @@ class _ScaleLabels extends StatelessWidget {
     ];
 
     // Every label is positioned, so the row needs a height of its own. Measured
-    // rather than guessed, so it follows the style and the text scale.
-    final TextPainter probe = TextPainter(
-      text: TextSpan(text: labels.first, style: style),
-      textDirection: Directionality.of(context),
-      textScaler: MediaQuery.textScalerOf(context),
-    )..layout();
-    final double height = probe.height;
-    probe.dispose();
+    // rather than guessed, so it follows the style and the text scale — and
+    // measured across all of them, since a formatter is free to return labels
+    // of differing heights (mixed scripts, a superscript, an emoji).
+    double height = 0;
+    for (final String label in labels) {
+      final TextPainter probe = TextPainter(
+        text: TextSpan(text: label, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      if (probe.height > height) height = probe.height;
+      probe.dispose();
+    }
 
     // Decoration: the slider itself announces its value, and a screen reader
     // reading the scale out as well would only be in the way.
