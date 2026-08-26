@@ -117,10 +117,19 @@ class DiamondPercentSlider extends StatefulWidget {
   final bool enableFeedback;
 
   /// Whether each node is labelled with the value at that point.
+  ///
+  /// Each label is centred on its node and none of them elide, so at a large
+  /// text scale, on a narrow slider, or with a long [labelFormatter], adjacent
+  /// labels can meet. [nodes] is the dial for that: only the host knows how
+  /// much room the slider has.
   final bool showLabels;
 
   /// Formats the node labels and, unless [indicatorFormatter] says otherwise,
   /// the bubble. Defaults to `'42%'`.
+  ///
+  /// The default is deliberately not locale-aware — ASCII digits and a trailing
+  /// sign. Pass a formatter for localised digits or separators, e.g. one built
+  /// on `intl`'s `NumberFormat` in the host app.
   final DiamondSliderLabelFormatter? labelFormatter;
 
   /// Formats the bubble above the thumb, when it should read differently from

@@ -80,6 +80,35 @@ value bubble and screen-reader announcement use the wording appropriate to
 your domain. See the runnable [example](example) for light, dark, disabled and
 custom-colour variants.
 
+### Formatting and localisation
+
+The default formatter is `'$value%'` — ASCII digits and a trailing sign, in
+that order. It is deliberately not locale-aware: a package that guessed at
+number formatting would be wrong in more places than it was right. Pass a
+formatter for anything else, including localised digits and separators — with
+`intl` in your own app, for instance:
+
+```dart
+final locale = Localizations.localeOf(context).toString();
+final format = NumberFormat.percentPattern(locale);
+
+DiamondPercentSlider(
+  value: percent,
+  labelFormatter: (value) => format.format(value / 100),
+  onChanged: (value) => setState(() => percent = value),
+)
+```
+
+### Scale labels and width
+
+Each label is centred on its node, and nothing elides or drops them: at a large
+text scale, a narrow slider or a long formatter, adjacent labels can meet. The
+node count is the dial for that — `nodes: 3` on a narrow slider reads better
+than five crowded labels — and it is the host's call, because only the host
+knows how much room the slider has. `MediaQuery.textScalerOf(context)` is
+already honoured in the labels' height, so a layout that reacts to text scale
+can lower `nodes` alongside it.
+
 ## Development
 
 Run `flutter analyze` and `flutter test` from the package root; CI runs both,
