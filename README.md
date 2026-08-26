@@ -82,9 +82,18 @@ custom-colour variants.
 
 ## Development
 
-Run `flutter analyze` and `flutter test` from the package root. The example's
-golden tests regenerate the README screenshots — every image here except the
-hand-recorded tilt animation — with:
+Run `flutter analyze` and `flutter test` from the package root.
+
+Golden tests under `test/goldens` cover what the slider paints. Their baselines
+are macOS-rendered, so CI skips them with `--exclude-tags golden` and they stay
+a local pre-release check. Regenerate after an intended visual change:
+
+```sh
+flutter test --update-goldens
+```
+
+The example's golden tests regenerate the README screenshots — every image
+here except the hand-recorded tilt animation — with:
 
 ```sh
 cd example

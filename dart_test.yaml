@@ -1,0 +1,6 @@
+# Goldens are renderer- and platform-specific: the baselines in test/goldens
+# were generated on macOS, so CI runs `flutter test --exclude-tags golden` and
+# they stay a local pre-release check. Regenerate with:
+#   flutter test --update-goldens
+tags:
+  golden:
