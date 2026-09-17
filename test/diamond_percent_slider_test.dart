@@ -690,13 +690,6 @@ void main() {
     ) async {
       await tester.pumpWidget(
         host(
-          DiamondPercentSlider(value: 0, showLabels: true, onChanged: (_) {}),
-        ),
-      );
-      final double bare = tester.getCenter(find.text('0%')).dx;
-
-      await tester.pumpWidget(
-        host(
           DiamondPercentSlider(
             value: 0,
             showLabels: true,
@@ -710,9 +703,14 @@ void main() {
         tester.widget<Slider>(find.byType(Slider)).padding,
         const EdgeInsets.symmetric(horizontal: 40),
       );
+      // Given a padding, the framework's BaseSliderTrackShape drops its own
+      // thumb/overlay auto-inset in favour of it, so the track — and the
+      // label under it — sits exactly `padding` in from the slider's edge,
+      // not `padding` plus the auto-inset on top.
+      final double sliderLeft = tester.getTopLeft(find.byType(Slider)).dx;
       expect(
         tester.getCenter(find.text('0%')).dx,
-        moreOrLessEquals(bare + 40, epsilon: 0.5),
+        moreOrLessEquals(sliderLeft + 40, epsilon: 0.5),
         reason: 'the first label follows the track it labels',
       );
     });
@@ -966,9 +964,9 @@ void main() {
     test('resolve leaves a colour the host set alone', () {
       const Color mine = Color(0xFF010203);
       expect(
-        const DiamondSliderTheme(activeColor: mine)
-            .resolve(ThemeData().colorScheme)
-            .activeColor,
+        const DiamondSliderTheme(
+          activeColor: mine,
+        ).resolve(ThemeData().colorScheme).activeColor,
         mine,
       );
     });

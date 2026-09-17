@@ -389,11 +389,16 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
 
     if (!widget.showLabels) return RepaintBoundary(child: slider);
 
-    final double trackInset =
-        (theme.thumbSize > theme.overlayRadius * 2
-            ? theme.thumbSize
-            : theme.overlayRadius * 2) /
-        2;
+    // BaseSliderTrackShape insets the track by half the wider of the thumb
+    // and the overlay only when the Slider has no padding of its own; once a
+    // padding is given, that padding replaces the auto-inset rather than
+    // adding to it. Matching that is what lines a label up with its node.
+    final double trackInset = widget.padding != null
+        ? 0
+        : (theme.thumbSize > theme.overlayRadius * 2
+                  ? theme.thumbSize
+                  : theme.overlayRadius * 2) /
+              2;
     // Resolved to start/end rather than left/right: under RTL the slider's
     // left padding is at the end of the scale, and the labels are positioned
     // directionally.
@@ -416,10 +421,6 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
             max: widget.max,
             formatter: _label,
             style: labelStyle,
-            // The track is inset from the slider's edges by half the wider of
-            // the thumb and the overlay, which is where BaseSliderTrackShape
-            // puts it, plus whatever padding the slider was given. Matching
-            // that inset is what lines a label up with its node.
             startInset: trackInset + (padding?.start ?? 0),
             endInset: trackInset + (padding?.end ?? 0),
           ),

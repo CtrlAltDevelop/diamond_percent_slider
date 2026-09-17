@@ -1,3 +1,15 @@
+## Unreleased
+
+**Fixed**
+
+* Scale labels no longer drift out of alignment with their diamonds when
+  `padding` is set. The framework's `BaseSliderTrackShape` drops its own
+  thumb/overlay auto-inset once a `Slider` is given padding — the padding
+  replaces it rather than adding to it — but the label layout kept adding
+  both, so a padded, labelled slider showed labels up to
+  `max(thumbSize, overlayRadius * 2) / 2` (14px with the default theme)
+  further in than the nodes they were meant to sit under.
+
 ## 1.1.0
 
 Two fixes and a handful of additions. Nothing in 1.0.x behaves differently

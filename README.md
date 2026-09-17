@@ -1,5 +1,11 @@
 # diamond_percent_slider
 
+[![Pub Version](https://img.shields.io/pub/v/diamond_percent_slider?logo=dart)](https://pub.dev/packages/diamond_percent_slider)
+[![Pub Points](https://img.shields.io/pub/points/diamond_percent_slider?logo=dart)](https://pub.dev/packages/diamond_percent_slider/score)
+[![Pub Likes](https://img.shields.io/pub/likes/diamond_percent_slider?logo=dart)](https://pub.dev/packages/diamond_percent_slider/score)
+[![CI](https://github.com/CtrlAltDevelop/diamond_percent_slider/actions/workflows/ci.yaml/badge.svg)](https://github.com/CtrlAltDevelop/diamond_percent_slider/actions/workflows/ci.yaml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A Material-style integer slider with a diamond track, diamond ticks and a
 thumb that gently tilts in the direction of travel. It is designed for
 percentage, leverage and other compact numeric choices, while retaining the
@@ -29,9 +35,9 @@ dependencies:
   diamond_percent_slider: ^1.1.0
 ```
 
-The package requires Flutter 3.47 or newer and uses `material_ui` for its
-Material primitives. That covers Android, iOS, macOS, Windows and Linux; web is
-not among them, because `material_ui` reaches for `dart:io`.
+The package requires Dart 3.12 / Flutter 3.44 or newer and uses `material_ui`
+for its Material primitives. That covers Android, iOS, macOS, Windows and
+Linux; web is not among them, because `material_ui` reaches for `dart:io`.
 
 ## Usage
 
