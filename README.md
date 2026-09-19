@@ -1,10 +1,9 @@
 # diamond_percent_slider
 
-[![Pub Version](https://img.shields.io/pub/v/diamond_percent_slider?logo=dart)](https://pub.dev/packages/diamond_percent_slider)
-[![Pub Points](https://img.shields.io/pub/points/diamond_percent_slider?logo=dart)](https://pub.dev/packages/diamond_percent_slider/score)
-[![Pub Likes](https://img.shields.io/pub/likes/diamond_percent_slider?logo=dart)](https://pub.dev/packages/diamond_percent_slider/score)
-[![CI](https://github.com/CtrlAltDevelop/diamond_percent_slider/actions/workflows/ci.yaml/badge.svg)](https://github.com/CtrlAltDevelop/diamond_percent_slider/actions/workflows/ci.yaml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![pub package](https://img.shields.io/pub/v/diamond_percent_slider.svg)](https://pub.dev/packages/diamond_percent_slider)
+[![pub points](https://img.shields.io/pub/points/diamond_percent_slider)](https://pub.dev/packages/diamond_percent_slider/score)
+[![CI](https://github.com/CtrlAltDevelop/diamond_percent_slider/actions/workflows/ci.yml/badge.svg)](https://github.com/CtrlAltDevelop/diamond_percent_slider/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/CtrlAltDevelop/diamond_percent_slider/blob/main/LICENSE)
 
 A Material-style integer slider with a diamond track, diamond ticks and a
 thumb that gently tilts in the direction of travel. It is designed for
@@ -32,10 +31,11 @@ keyboard interaction and accessibility behaviour of Flutter's `Slider`.
 
 ```yaml
 dependencies:
-  diamond_percent_slider: ^1.1.0
+  diamond_percent_slider: ">=1.2.0 <2.0.0"
+  material_ui: ">=1.0.0 <2.0.0"
 ```
 
-The package requires Dart 3.12 / Flutter 3.44 or newer and uses `material_ui`
+The package requires Dart 3.12.0 / Flutter 3.44.0 or newer and uses `material_ui`
 for its Material primitives. That covers Android, iOS, macOS, Windows and
 Linux; web is not among them, because `material_ui` reaches for `dart:io`.
 
@@ -117,8 +117,11 @@ can lower `nodes` alongside it.
 
 ## Development
 
-Run `flutter analyze` and `flutter test` from the package root; CI runs both,
-plus `dart format`, `dart pub publish --dry-run` and `pana`, on every push.
+Run `flutter analyze` and `flutter test` from the package root. CI runs both
+on every push and pull request, plus `dart format`, the example, a CHANGELOG
+entry for the version in `pubspec.yaml` and `pana` with no points lost — the
+shared gate in
+[CtrlAltDevelop/ci-workflows](https://github.com/CtrlAltDevelop/ci-workflows).
 
 Golden tests under `test/goldens` cover what the slider paints. Their baselines
 are macOS-rendered, so CI skips them with `--exclude-tags golden` and they stay
@@ -137,3 +140,7 @@ flutter test --update-goldens test/screenshots_test.dart
 ```
 
 Issues and contributions are welcome in the package repository.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
