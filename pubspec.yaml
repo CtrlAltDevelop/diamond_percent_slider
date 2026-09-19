@@ -2,7 +2,7 @@ name: diamond_percent_slider
 description: >-
   An integer slider on a scale of diamonds, with a thumb that leans the way it
   is dragged and a bubble showing the value while it moves.
-version: 1.1.0
+version: 1.2.0
 homepage: https://github.com/CtrlAltDevelop
 repository: https://github.com/CtrlAltDevelop/diamond_percent_slider
 issue_tracker: https://github.com/CtrlAltDevelop/diamond_percent_slider/issues
