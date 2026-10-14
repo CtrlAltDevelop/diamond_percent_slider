@@ -60,6 +60,7 @@ class DiamondPercentSlider extends StatefulWidget {
     this.enabled = true,
     this.enableFeedback = true,
     this.showLabels = false,
+    this.showValueIndicator,
     this.labelFormatter,
     this.indicatorFormatter,
     this.semanticFormatter,
@@ -123,6 +124,11 @@ class DiamondPercentSlider extends StatefulWidget {
   /// labels can meet. [nodes] is the dial for that: only the host knows how
   /// much room the slider has.
   final bool showLabels;
+
+  /// When the bubble above the thumb is shown, as on [Slider]. Defaults to
+  /// while the thumb is being dragged; [ShowValueIndicator.alwaysVisible] keeps
+  /// it up, and [ShowValueIndicator.never] drops it.
+  final ShowValueIndicator? showValueIndicator;
 
   /// Formats the node labels and, unless [indicatorFormatter] says otherwise,
   /// the bubble. Defaults to `'42%'`.
@@ -242,6 +248,14 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
   void _lean(double direction) {
     if (_tilt == direction) return;
     setState(() => _tilt = direction);
+  }
+
+  @override
+  void didUpdateWidget(DiamondPercentSlider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Disabled mid-drag, the Slider never reports the end of it, so the thumb
+    // would stay leaning on a greyed-out slider.
+    if (!_interactive) _tilt = 0;
   }
 
   void _handleChangeStart(double raw) => widget.onChangeStart?.call(_snap(raw));
@@ -366,6 +380,7 @@ class _DiamondPercentSliderState extends State<DiamondPercentSlider> {
         mouseCursor: widget.mouseCursor,
         allowedInteraction: widget.allowedInteraction,
         padding: widget.padding,
+        showValueIndicator: widget.showValueIndicator,
         semanticFormatterCallback: (double raw) =>
             (widget.semanticFormatter ?? _indicator)(_snap(raw)),
         onChanged: _interactive ? _handleChanged : null,

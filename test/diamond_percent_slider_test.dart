@@ -516,6 +516,61 @@ void main() {
     });
   });
 
+  group('the tilt when disabled', () {
+    testWidgets('going disabled mid-drag levels the thumb', (tester) async {
+      int value = 50;
+      bool enabled = true;
+      late StateSetter rebuild;
+      await tester.pumpWidget(
+        host(
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              rebuild = setState;
+              return DiamondPercentSlider(
+                value: value,
+                enabled: enabled,
+                onChanged: (int next) => setState(() => value = next),
+              );
+            },
+          ),
+        ),
+      );
+
+      final TestGesture gesture = await tester.startGesture(
+        tester.getCenter(find.byType(Slider)),
+      );
+      await gesture.moveBy(const Offset(60, 0));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(thumbOf(tester).angle, greaterThan(0));
+
+      rebuild(() => enabled = false);
+      await tester.pumpAndSettle();
+
+      expect(thumbOf(tester).angle, 0);
+      await gesture.up();
+    });
+  });
+
+  group('the value bubble', () {
+    testWidgets('showValueIndicator reaches the Slider', (tester) async {
+      await tester.pumpWidget(
+        host(
+          DiamondPercentSlider(
+            value: 50,
+            showValueIndicator: ShowValueIndicator.alwaysVisible,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+
+      expect(
+        tester.widget<Slider>(find.byType(Slider)).showValueIndicator,
+        ShowValueIndicator.alwaysVisible,
+      );
+    });
+  });
+
   group('being disabled', () {
     testWidgets('a null onChanged stops input', (tester) async {
       await tester.pumpWidget(
