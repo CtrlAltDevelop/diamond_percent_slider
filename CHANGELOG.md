@@ -1,3 +1,21 @@
+## 1.3.0
+
+**Fixed**
+
+* A slider disabled in the middle of a drag no longer stays tilted. The
+  `Slider` underneath never reports the end of a drag it can no longer
+  receive, so the thumb kept leaning on a greyed-out slider until it was
+  enabled and dragged again.
+
+**Added**
+
+* `showValueIndicator`, passed through to the `Slider`: keep the value bubble
+  up with `ShowValueIndicator.alwaysVisible`, or drop it with
+  `ShowValueIndicator.never`. Left null it is shown while dragging, as before.
+* A `publish.yml` workflow: pushing a `vX.Y.Z` tag on main publishes that
+  version to pub.dev from GitHub Actions, once the tag matches the pubspec
+  version and has its changelog entry.
+
 ## 1.2.0
 
 **Fixed**

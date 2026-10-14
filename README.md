@@ -24,6 +24,8 @@ keyboard interaction and accessibility behaviour of Flutter's `Slider`.
 * Right-to-left layouts, where the scale and its labels mirror, and the thumb
   still leans the way the finger moves.
 * A haptic tick on each step change, off with `enableFeedback: false`.
+* A value bubble shown while dragging, or always, or never, with
+  `showValueIndicator`.
 * Public track, thumb, tick-mark and value-indicator shapes for use with a
   plain `Slider`.
 
@@ -31,7 +33,7 @@ keyboard interaction and accessibility behaviour of Flutter's `Slider`.
 
 ```yaml
 dependencies:
-  diamond_percent_slider: ">=1.2.0 <2.0.0"
+  diamond_percent_slider: ">=1.3.0 <2.0.0"
   material_ui: ">=1.0.0 <2.0.0"
 ```
 
